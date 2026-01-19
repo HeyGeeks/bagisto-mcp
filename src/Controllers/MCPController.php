@@ -5,6 +5,7 @@ namespace HeyGeeks\BagistoMCP\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use HeyGeeks\BagistoMCP\Tools\ToolInterface;
+use HeyGeeks\BagistoMCP\Models\ToolSetting;
 
 class MCPController extends Controller
 {
@@ -37,6 +38,14 @@ class MCPController extends Controller
                 ], 404);
             }
 
+            // Check if the tool is enabled
+            if (!ToolSetting::isEnabled($toolName)) {
+                return response()->json([
+                    'error' => "Tool '{$toolName}' is currently disabled",
+                    'code' => 'TOOL_DISABLED',
+                ], 403);
+            }
+
             $result = $tool->execute($arguments);
 
             return response()->json([
@@ -56,6 +65,7 @@ class MCPController extends Controller
 
     /**
      * List all available tools with their full definitions.
+     * Only lists enabled tools.
      */
     private function listTools()
     {
@@ -63,6 +73,11 @@ class MCPController extends Controller
         $definitions = [];
 
         foreach ($toolClasses as $name => $class) {
+            // Only include enabled tools in discovery
+            if (!ToolSetting::isEnabled($name)) {
+                continue;
+            }
+
             if (class_exists($class)) {
                 $tool = app($class);
                 if ($tool instanceof ToolInterface) {

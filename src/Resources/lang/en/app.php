@@ -1,0 +1,71 @@
+<?php
+
+return [
+    'admin' => [
+        'menu' => [
+            'mcp-server' => 'MCP Server',
+            'dashboard' => 'Dashboard',
+            'tools' => 'Tools',
+            'settings' => 'Settings',
+        ],
+
+        'acl' => [
+            'mcp-server' => 'MCP Server',
+            'dashboard' => 'Dashboard',
+            'tools' => 'Tools',
+            'settings' => 'Settings',
+        ],
+
+        'dashboard' => [
+            'title' => 'MCP Server Dashboard',
+            'server-status' => 'Server Status',
+            'enabled' => 'Enabled',
+            'disabled' => 'Disabled',
+            'version' => 'Version',
+            'total-tools' => 'Total Tools',
+            'rate-limit' => 'Rate Limit',
+            'api-endpoint' => 'API Endpoint',
+            'api-description' => 'Interact with MCP tools.',
+            'manage-tools' => 'Manage Tools',
+            'manage-tools-desc' => 'Enable or disable individual MCP tools.',
+            'configure' => 'Configure Settings',
+            'configure-desc' => 'Adjust rate limits, endpoint URL, and more.',
+        ],
+
+        'tools' => [
+            'title' => 'MCP Tools',
+            'name' => 'Tool Name',
+            'description' => 'Description',
+            'auth-required' => 'Auth Required',
+            'status' => 'Status',
+            'actions' => 'Actions',
+            'enabled' => 'Enabled',
+            'disabled' => 'Disabled',
+            'enable' => 'Enable',
+            'disable' => 'Disable',
+            'yes' => 'Yes',
+            'no' => 'No',
+            'no-tools' => 'No tools configured.',
+            'tool-not-found' => 'Tool not found.',
+            'enabled-success' => 'Tool ":tool" has been enabled.',
+            'disabled-success' => 'Tool ":tool" has been disabled.',
+        ],
+
+        'settings' => [
+            'title' => 'MCP Settings',
+            'general' => 'General Settings',
+            'server-enabled' => 'Server Enabled',
+            'server-enabled-help' => 'When disabled, all MCP requests will return 503.',
+            'endpoint' => 'Endpoint URL',
+            'endpoint-help' => 'The URL path for the MCP server (e.g., mcp, api/mcp).',
+            'rate-limit' => 'Rate Limit',
+            'rate-limit-help' => 'Maximum requests per minute per IP/token.',
+            'auth-method' => 'Authentication Method',
+            'auth-method-help' => 'Method used for protected tool authentication.',
+            'save' => 'Save Settings',
+            'save-success' => 'Settings saved successfully.',
+            'yes' => 'Yes',
+            'no' => 'No',
+        ],
+    ],
+];

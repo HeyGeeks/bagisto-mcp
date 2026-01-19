@@ -1,5 +1,13 @@
 # Bagisto MCP Server
+<p align="center">
+  <img src="src/Resources/assets/images/logo.png" alt="Bagisto MCP" width="300" />
+</p>
 
+<h1 align="center">Bagisto MCP Server</h1>
+
+<p align="center">
+  <strong>Model Context Protocol for Bagisto E-Commerce</strong>
+</p>
 A Laravel package that exposes Bagisto e-commerce capabilities to LLMs (Large Language Models) via the **Model Context Protocol (MCP)**. This enables AI agents to safely interact with your Bagisto store for product discovery, customer authentication, order tracking, and more.
 
 ---
