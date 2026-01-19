@@ -1,10 +1,5 @@
 # Bagisto MCP Server
 
-> ⚠️ **BETA VERSION - UNDER DEVELOPMENT**
->
-> This package is currently in beta. APIs may change without notice.
-> Not recommended for production use without thorough testing.
-
 A Laravel package that exposes Bagisto e-commerce capabilities to LLMs (Large Language Models) via the **Model Context Protocol (MCP)**. This enables AI agents to safely interact with your Bagisto store for product discovery, customer authentication, order tracking, and more.
 
 ---
