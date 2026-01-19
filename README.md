@@ -25,7 +25,7 @@ A Laravel package that exposes Bagisto e-commerce capabilities to LLMs (Large La
 
 ### 1. Install via Composer
 
-If the package is available on Packagist:
+The package is available on Packagist:
 ```bash
 composer require heygeeks/bagisto-mcp
 ```
