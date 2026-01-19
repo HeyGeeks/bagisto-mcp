@@ -388,4 +388,4 @@ MIT License - See [LICENSE](LICENSE) file for details.
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/heygeeks/bagisto-mcp/issues)
-- **Email**: dev@heygeeks.in
+- **Email**: mohit@heygeeks.in
