@@ -2,6 +2,7 @@
     "name": "heygeeks/bagisto-mcp",
     "description": "Bagisto MCP Server for LLM Integration",
     "type": "library",
+    "version": "1.0.0",
     "license": "MIT",
     "authors": [
         {
