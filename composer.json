@@ -1,0 +1,28 @@
+{
+    "name": "heygeeks/bagisto-mcp",
+    "description": "Bagisto MCP Server for LLM Integration",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "HeyGeeks",
+            "email": "dev@heygeeks.in"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^10.0|^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "HeyGeeks\\BagistoMCP\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "HeyGeeks\\BagistoMCP\\MCPServiceProvider"
+            ]
+        }
+    }
+}
