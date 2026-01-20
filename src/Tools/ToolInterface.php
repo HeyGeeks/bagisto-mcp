@@ -5,11 +5,19 @@ namespace HeyGeeks\BagistoMCP\Tools;
 interface ToolInterface
 {
     /**
-     * Get the tool name.
+     * Get the tool name (internal, with dots e.g. "products.list").
      *
      * @return string
      */
     public function name(): string;
+
+    /**
+     * Get the Claude-compatible tool name (with underscores e.g. "products_list").
+     * Claude requires tool names matching: ^[a-zA-Z0-9_-]{1,64}$
+     *
+     * @return string
+     */
+    public function claudeName(): string;
 
     /**
      * Get the tool description for LLM context.

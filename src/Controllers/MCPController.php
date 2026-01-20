@@ -29,17 +29,20 @@ class MCPController extends Controller
         $arguments = $request->input('arguments', []);
 
         try {
-            $tool = $this->resolveTool($toolName);
+            // Resolve tool - supports both dot (products.list) and underscore (products_list) naming
+            $result = $this->resolveTool($toolName);
 
-            if (!$tool) {
+            if (!$result) {
                 return response()->json([
                     'error' => "Tool '{$toolName}' not found",
                     'available_tools' => array_keys(config('mcp.tools', [])),
                 ], 404);
             }
 
-            // Check if the tool is enabled
-            if (!ToolSetting::isEnabled($toolName)) {
+            [$tool, $normalizedName] = $result;
+
+            // Check if the tool is enabled (use normalized dot notation for config lookup)
+            if (!ToolSetting::isEnabled($normalizedName)) {
                 return response()->json([
                     'error' => "Tool '{$toolName}' is currently disabled",
                     'code' => 'TOOL_DISABLED',
@@ -94,13 +97,26 @@ class MCPController extends Controller
         ]);
     }
 
-    private function resolveTool(string $name): ?ToolInterface
+    /**
+     * Resolve a tool by name.
+     * Supports both dot notation (products.list) and underscore notation (products_list).
+     *
+     * @param string $name Tool name in either format
+     * @return array|null Returns [ToolInterface, normalizedName] or null if not found
+     */
+    private function resolveTool(string $name): ?array
     {
         $tools = config('mcp.tools', []);
 
+        // Try exact match first (dot notation from config)
         if (isset($tools[$name]) && class_exists($tools[$name])) {
-            $class = $tools[$name];
-            return app($class);
+            return [app($tools[$name]), $name];
+        }
+
+        // Try converting underscore to dot (Claude sends underscore format)
+        $dotName = str_replace('_', '.', $name);
+        if (isset($tools[$dotName]) && class_exists($tools[$dotName])) {
+            return [app($tools[$dotName]), $dotName];
         }
 
         return null;

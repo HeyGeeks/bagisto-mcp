@@ -52,6 +52,58 @@ php artisan route:clear
 php artisan config:clear
 ```
 
+### 4. Claude Desktop Integration (Optional)
+
+To connect Claude Desktop to your Bagisto store, you need the MCP Bridge (a Node.js stdio server).
+
+#### Install the MCP Bridge
+
+```bash
+# Option 1: Global install (recommended)
+npm install -g bagisto-mcp-bridge
+
+# Option 2: Use npx (no install needed)
+# Just configure Claude Desktop with npx (see below)
+```
+
+#### Configure Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+    "mcpServers": {
+        "bagisto": {
+            "command": "npx",
+            "args": ["-y", "bagisto-mcp-bridge"],
+            "env": {
+                "BAGISTO_MCP_URL": "https://your-store.com/mcp"
+            }
+        }
+    }
+}
+```
+
+> **Note**: Replace `https://your-store.com/mcp` with your actual Bagisto store URL.
+
+#### For Local Development
+
+```json
+{
+    "mcpServers": {
+        "bagisto": {
+            "command": "npx",
+            "args": ["-y", "bagisto-mcp-bridge"],
+            "env": {
+                "BAGISTO_MCP_URL": "http://localhost:8000/mcp"
+            }
+        }
+    }
+}
+```
+
+After updating the config, restart Claude Desktop. The MCP tools will appear in Claude's tool list.
+
 ---
 
 ## Configuration
