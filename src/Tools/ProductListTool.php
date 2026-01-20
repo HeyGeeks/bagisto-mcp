@@ -2,9 +2,10 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Webkul\Product\Repositories\ProductRepository;
 
-class ProductListTool extends BaseTool
+class ProductListTool
 {
     protected $productRepository;
 
@@ -13,63 +14,36 @@ class ProductListTool extends BaseTool
         $this->productRepository = $productRepository;
     }
 
-    public function name(): string
-    {
-        return 'products.list';
-    }
-
-    public function description(): string
-    {
-        return 'List products from the Bagisto store with optional filtering by category, price range, and pagination. Use this tool when the user wants to browse products, view catalog, or filter products by specific criteria.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'limit' => [
-                    'type' => 'integer',
-                    'description' => 'Maximum number of products to return (default: 10)',
-                    'default' => 10,
-                ],
-                'page' => [
-                    'type' => 'integer',
-                    'description' => 'Page number for pagination (default: 1)',
-                    'default' => 1,
-                ],
-                'category_id' => [
-                    'type' => 'integer',
-                    'description' => 'Filter products by category ID',
-                ],
-                'price_min' => [
-                    'type' => 'number',
-                    'description' => 'Minimum price filter',
-                ],
-                'price_max' => [
-                    'type' => 'number',
-                    'description' => 'Maximum price filter',
-                ],
-            ],
-            'required' => [],
-        ];
-    }
-
-    public function execute(array $arguments): array
-    {
+    /**
+     * List products from the Bagisto store.
+     * 
+     * Optional filtering by category, price range, and pagination.
+     * Use this tool when the user wants to browse products, view catalog, or filter products by specific criteria.
+     * 
+     * @param int $limit Maximum number of products to return (default: 10)
+     * @param int $page Page number for pagination (default: 1)
+     * @param int|null $category_id Filter products by category ID
+     * @param float|null $price_min Minimum price filter
+     * @param float|null $price_max Maximum price filter
+     * @return array Product list
+     */
+    #[McpTool(name: 'products_list')]
+    public function list(
+        int $limit = 10,
+        int $page = 1,
+        ?int $category_id = null,
+        ?float $price_min = null,
+        ?float $price_max = null
+    ): array {
         $params = [];
 
-        if (isset($arguments['category_id'])) {
-            $params['category_id'] = $arguments['category_id'];
+        if ($category_id) {
+            $params['category_id'] = $category_id;
         }
 
-        if (isset($arguments['price_min'])) {
-            $params['price'] = $arguments['price_min'] . ',' . ($arguments['price_max'] ?? 1000000);
+        if ($price_min !== null) {
+            $params['price'] = $price_min . ',' . ($price_max ?? 1000000);
         }
-
-        // Set limit for pagination
-        $limit = $arguments['limit'] ?? 10;
-        $page = $arguments['page'] ?? 1;
 
         // Merge into request for the repository to pick up
         request()->merge([

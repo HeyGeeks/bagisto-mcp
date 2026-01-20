@@ -2,32 +2,22 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Webkul\Checkout\Facades\Cart;
 use Illuminate\Support\Facades\Auth;
 
-class CartPreviewTool extends BaseTool
+class CartPreviewTool
 {
-    public function name(): string
-    {
-        return 'cart.preview';
-    }
-
-    public function description(): string
-    {
-        return 'Preview the current shopping cart contents (read-only). Shows items, quantities, prices, and totals. Use this tool when the user asks about their cart, what items they have added, or wants to review before checkout.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [],
-            'required' => [],
-            'description' => 'No input required. Cart is identified by session or authenticated user.',
-        ];
-    }
-
-    public function execute(array $arguments): array
+    /**
+     * Preview the current shopping cart contents (read-only).
+     * 
+     * Shows items, quantities, prices, and totals.
+     * Use this tool when the user asks about their cart, what items they have added, or wants to review before checkout.
+     * 
+     * @return array The cart details
+     */
+    #[McpTool(name: 'cart_preview')]
+    public function preview(): array
     {
         $cart = Cart::getCart();
 

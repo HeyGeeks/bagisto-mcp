@@ -2,9 +2,10 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Webkul\Category\Repositories\CategoryRepository;
 
-class CategoryListTool extends BaseTool
+class CategoryListTool
 {
     protected $categoryRepository;
 
@@ -13,44 +14,23 @@ class CategoryListTool extends BaseTool
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function name(): string
+    /**
+     * List all product categories in the store.
+     * 
+     * Use this tool when the user wants to browse categories, explore the catalog structure, or find products by category.
+     * Returns a hierarchical list of categories.
+     * 
+     * @param int|null $parent_id Parent category ID to list children (optional, defaults to root)
+     * @param bool $include_inactive Include inactive categories (default: false)
+     * @return array List of categories
+     */
+    #[McpTool(name: 'categories_list')]
+    public function list(?int $parent_id = null, bool $include_inactive = false): array
     {
-        return 'categories.list';
-    }
-
-    public function description(): string
-    {
-        return 'List all product categories in the store. Use this tool when the user wants to browse categories, explore the catalog structure, or find products by category. Returns a hierarchical list of categories.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'parent_id' => [
-                    'type' => 'integer',
-                    'description' => 'Parent category ID to list children (optional, defaults to root)',
-                ],
-                'include_inactive' => [
-                    'type' => 'boolean',
-                    'description' => 'Include inactive categories (default: false)',
-                    'default' => false,
-                ],
-            ],
-            'required' => [],
-        ];
-    }
-
-    public function execute(array $arguments): array
-    {
-        $parentId = $arguments['parent_id'] ?? null;
-        $includeInactive = $arguments['include_inactive'] ?? false;
-
         $query = $this->categoryRepository->query();
 
-        if ($parentId) {
-            $query->where('parent_id', $parentId);
+        if ($parent_id) {
+            $query->where('parent_id', $parent_id);
         } else {
             // Get root categories (parent_id is null or root category)
             $rootCategory = $this->categoryRepository->findOneByField('parent_id', null);
@@ -59,7 +39,7 @@ class CategoryListTool extends BaseTool
             }
         }
 
-        if (!$includeInactive) {
+        if (!$include_inactive) {
             $query->where('status', 1);
         }
 

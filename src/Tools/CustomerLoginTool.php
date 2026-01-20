@@ -2,11 +2,12 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Illuminate\Support\Facades\Hash;
 use Webkul\Customer\Repositories\CustomerRepository;
 use Illuminate\Validation\ValidationException;
 
-class CustomerLoginTool extends BaseTool
+class CustomerLoginTool
 {
     protected $customerRepository;
 
@@ -15,40 +16,21 @@ class CustomerLoginTool extends BaseTool
         $this->customerRepository = $customerRepository;
     }
 
-    public function name(): string
+    /**
+     * Authenticate a customer using email and password.
+     * 
+     * Returns an MCP session token on success.
+     * Use this tool when the user wants to log in, access their account, or perform authenticated actions.
+     * The returned 'token' must be passed as an argument to subsequent authenticated tool calls.
+     * Rate-limited for security.
+     * 
+     * @param string $email Customer email address
+     * @param string $password Customer password (never stored or logged)
+     * @return array Login result
+     */
+    #[McpTool(name: 'customer_login')]
+    public function login(string $email, string $password): array
     {
-        return 'customer.login';
-    }
-
-    public function description(): string
-    {
-        return 'Authenticate a customer using email and password. Returns an MCP session token on success. Use this tool when the user wants to log in, access their account, or perform authenticated actions. Rate-limited for security.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'email' => [
-                    'type' => 'string',
-                    'format' => 'email',
-                    'description' => 'Customer email address',
-                ],
-                'password' => [
-                    'type' => 'string',
-                    'description' => 'Customer password (never stored or logged)',
-                ],
-            ],
-            'required' => ['email', 'password'],
-        ];
-    }
-
-    public function execute(array $arguments): array
-    {
-        $email = $arguments['email'] ?? null;
-        $password = $arguments['password'] ?? null;
-
         if (!$email || !$password) {
             throw ValidationException::withMessages(['message' => 'Email and password are required.']);
         }

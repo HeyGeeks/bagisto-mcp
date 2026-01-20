@@ -2,11 +2,15 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Webkul\Customer\Repositories\WishlistRepository;
 use Illuminate\Support\Facades\Auth;
+use HeyGeeks\BagistoMCP\Tools\Traits\AuthenticatedToolTrait;
 
-class WishlistTool extends BaseTool
+class WishlistTool
 {
+    use AuthenticatedToolTrait;
+
     protected $wishlistRepository;
 
     public function __construct(WishlistRepository $wishlistRepository)
@@ -14,36 +18,27 @@ class WishlistTool extends BaseTool
         $this->wishlistRepository = $wishlistRepository;
     }
 
-    public function name(): string
+    /**
+     * View the customer wishlist items.
+     * 
+     * Shows all saved products the customer wants to buy later.
+     * Requires authentication.
+     * Use this tool when the user asks about their wishlist, saved items, or favorites.
+     * 
+     * @param string $token Authentication token from customer.login
+     * @return array Wishlist items
+     */
+    #[McpTool(name: 'wishlist_view')]
+    public function view(string $token): array
     {
-        return 'wishlist.view';
-    }
-
-    public function description(): string
-    {
-        return 'View the customer wishlist items. Shows all saved products the customer wants to buy later. Requires authentication. Use this tool when the user asks about their wishlist, saved items, or favorites.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [],
-            'required' => [],
-            'description' => 'No input required. Requires authentication via Bearer token.',
-        ];
-    }
-
-    public function execute(array $arguments): array
-    {
-        $user = Auth::guard('sanctum')->user();
-
-        if (!$user) {
+        if (!$this->authenticate($token)) {
             return [
                 'authenticated' => false,
-                'error' => 'Authentication required. Please login using customer.login first.',
+                'error' => 'Unauthenticated or Invalid Token. Please provide a valid token obtained from customer.login.',
             ];
         }
+
+        $user = Auth::guard('sanctum')->user();
 
         $wishlistItems = $this->wishlistRepository->findWhere(['customer_id' => $user->id]);
 

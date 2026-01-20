@@ -2,9 +2,10 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Webkul\Product\Repositories\ProductRepository;
 
-class ProductSearchTool extends BaseTool
+class ProductSearchTool
 {
     protected $productRepository;
 
@@ -13,44 +14,22 @@ class ProductSearchTool extends BaseTool
         $this->productRepository = $productRepository;
     }
 
-    public function name(): string
+    /**
+     * Search for products in the Bagisto store using full-text search.
+     * 
+     * Use this tool when the user is looking for a specific product by name, keyword, or description.
+     * Returns relevant products sorted by relevance.
+     * 
+     * @param string $query Search query string (product name, keyword, or description)
+     * @param int $limit Maximum number of results to return (default: 20)
+     * @return array Search results
+     */
+    #[McpTool(name: 'products_search')]
+    public function search(string $query, int $limit = 20): array
     {
-        return 'products.search';
-    }
-
-    public function description(): string
-    {
-        return 'Search for products in the Bagisto store using full-text search. Use this tool when the user is looking for a specific product by name, keyword, or description. Returns relevant products sorted by relevance.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'query' => [
-                    'type' => 'string',
-                    'description' => 'Search query string (product name, keyword, or description)',
-                ],
-                'limit' => [
-                    'type' => 'integer',
-                    'description' => 'Maximum number of results to return (default: 20)',
-                    'default' => 20,
-                ],
-            ],
-            'required' => ['query'],
-        ];
-    }
-
-    public function execute(array $arguments): array
-    {
-        $query = $arguments['query'] ?? '';
-
         if (empty($query)) {
             return ['products' => [], 'message' => 'Query is required'];
         }
-
-        $limit = $arguments['limit'] ?? 20;
 
         // Merge into request for the repository to pick up
         request()->merge([

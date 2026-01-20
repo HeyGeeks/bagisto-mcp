@@ -2,29 +2,20 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
-class StoreInfoTool extends BaseTool
+use Mcp\Capability\Attribute\McpTool;
+
+class StoreInfoTool
 {
-    public function name(): string
-    {
-        return 'store.info';
-    }
-
-    public function description(): string
-    {
-        return 'Get general store information including name, currency, locale, and contact details. Use this tool when the user asks about the store, wants contact information, or needs to know about supported currencies and languages.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [],
-            'required' => [],
-            'description' => 'No input required.',
-        ];
-    }
-
-    public function execute(array $arguments): array
+    /**
+     * Get general store information.
+     * 
+     * Includes name, currency, locale, and contact details.
+     * Use this tool when the user asks about the store, wants contact information, or needs to know about supported currencies and languages.
+     * 
+     * @return array Store information
+     */
+    #[McpTool(name: 'store_info')]
+    public function info(): array
     {
         $channel = core()->getCurrentChannel();
 

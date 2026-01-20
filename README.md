@@ -52,18 +52,16 @@ php artisan route:clear
 php artisan config:clear
 ```
 
-### 4. Claude Desktop Integration (Optional)
+### 4. Claude Desktop Integration
 
-To connect Claude Desktop to your Bagisto store, you need the MCP Bridge (a Node.js stdio server).
+This package includes a pure PHP MCP stdio server that connects Claude Desktop directly to your Bagisto store.
 
-#### Install the MCP Bridge
+#### Prerequisites
 
+Make sure composer dependencies are installed in the package:
 ```bash
-# Option 1: Global install (recommended)
-npm install -g bagisto-mcp-bridge
-
-# Option 2: Use npx (no install needed)
-# Just configure Claude Desktop with npx (see below)
+cd packages/heygeeks/bagisto-mcp
+composer install
 ```
 
 #### Configure Claude Desktop
@@ -74,35 +72,40 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 {
     "mcpServers": {
         "bagisto": {
-            "command": "npx",
-            "args": ["-y", "bagisto-mcp-bridge"],
-            "env": {
-                "BAGISTO_MCP_URL": "https://your-store.com/mcp"
-            }
+            "command": "php",
+            "args": ["/path/to/your/bagisto/packages/heygeeks/bagisto-mcp/bin/bagisto-mcp"]
         }
     }
 }
 ```
 
-> **Note**: Replace `https://your-store.com/mcp` with your actual Bagisto store URL.
+> **Note**: Replace `/path/to/your/bagisto` with the absolute path to your Bagisto installation.
 
-#### For Local Development
+#### Example for Local Development
 
 ```json
 {
     "mcpServers": {
         "bagisto": {
-            "command": "npx",
-            "args": ["-y", "bagisto-mcp-bridge"],
-            "env": {
-                "BAGISTO_MCP_URL": "http://localhost:8000/mcp"
-            }
+            "command": "php",
+            "args": ["/Users/yourname/Developer/my-bagisto-store/packages/heygeeks/bagisto-mcp/bin/bagisto-mcp"]
         }
     }
 }
 ```
 
 After updating the config, restart Claude Desktop. The MCP tools will appear in Claude's tool list.
+
+#### Test the MCP Server
+
+```bash
+# Test if the server starts correctly
+php packages/heygeeks/bagisto-mcp/bin/bagisto-mcp
+
+# You should see:
+# Bagisto MCP PHP server starting...
+# Tools registered: 11
+```
 
 ---
 

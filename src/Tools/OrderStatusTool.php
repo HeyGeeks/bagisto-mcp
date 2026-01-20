@@ -2,61 +2,51 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Webkul\Sales\Repositories\OrderRepository;
 use Illuminate\Support\Facades\Auth;
 
-class OrderStatusTool extends BaseTool
+class OrderStatusTool
 {
     protected $orderRepository;
 
     public function __construct(OrderRepository $orderRepository)
     {
+        file_put_contents('debug_tool.log', "OrderStatusTool __construct called\n", FILE_APPEND);
         $this->orderRepository = $orderRepository;
     }
 
-    public function name(): string
+    /**
+     * Check the status of an order by order ID.
+     * 
+     * Returns order status, payment state, shipment tracking, and estimated delivery.
+     * Use this tool when the user asks about their order status, tracking, or delivery information.
+     * 
+     * @param string $order_id The order increment ID (e.g., "100001")
+     * @return array The order status details
+     */
+    #[McpTool(name: 'orders_status')]
+    public function checkStatus(string $order_id): array
     {
-        return 'orders.status';
-    }
-
-    public function description(): string
-    {
-        return 'Check the status of an order by order ID. Returns order status, payment state, shipment tracking, and estimated delivery. Use this tool when the user asks about their order status, tracking, or delivery information.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'order_id' => [
-                    'type' => 'string',
-                    'description' => 'The order increment ID (e.g., "100001")',
-                ],
-            ],
-            'required' => ['order_id'],
-        ];
-    }
-
-    public function execute(array $arguments): array
-    {
-        $orderId = $arguments['order_id'] ?? null;
-
-        if (!$orderId) {
+        file_put_contents('debug_tool.log', "checkStatus called with ID: $order_id\n", FILE_APPEND);
+        if (!$order_id) {
             return ['error' => 'Order ID is required'];
         }
 
-        $order = $this->orderRepository->findOneByField('increment_id', $orderId);
+        $order = $this->orderRepository->findOneByField('increment_id', $order_id);
 
         if (!$order) {
             return [
                 'found' => false,
                 'error' => 'Order not found',
-                'order_id' => $orderId,
+                'order_id' => $order_id,
             ];
         }
 
         // Security: If user is logged in, ensure they own the order
+        // Note: Auth::guard('sanctum')->user() might contextually depend on how the request is handled (CLI vs HTTP)
+        // In StdioTransport, there might be no auth context unless explicitly passed or mocked.
+        // We will keep it for now but it might return null.
         $user = Auth::guard('sanctum')->user();
         if ($user && $order->customer_id !== $user->id) {
             return [

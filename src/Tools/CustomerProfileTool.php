@@ -2,40 +2,35 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Illuminate\Support\Facades\Auth;
+use HeyGeeks\BagistoMCP\Tools\Traits\AuthenticatedToolTrait;
 
-class CustomerProfileTool extends BaseTool
+class CustomerProfileTool
 {
-    public function name(): string
-    {
-        return 'customer.profile';
-    }
+    use AuthenticatedToolTrait;
 
-    public function description(): string
+    /**
+     * Get the authenticated customer profile information.
+     * 
+     * Includes name, email, and account details.
+     * Requires a valid Bearer token from customer.login.
+     * Use this tool when the user asks about their account, profile, or personal information.
+     * 
+     * @param string $token Authentication token from customer.login
+     * @return array Profile details
+     */
+    #[McpTool(name: 'customer_profile')]
+    public function getProfile(string $token): array
     {
-        return 'Get the authenticated customer profile information including name, email, and account details. Requires a valid Bearer token from customer.login. Use this tool when the user asks about their account, profile, or personal information.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [],
-            'required' => [],
-            'description' => 'No input required. Authentication is handled via Bearer token in the Authorization header.',
-        ];
-    }
-
-    public function execute(array $arguments): array
-    {
-        $user = Auth::guard('sanctum')->user();
-
-        if (!$user) {
+        if (!$this->authenticate($token)) {
             return [
                 'authenticated' => false,
-                'error' => 'Unauthenticated. Please provide a valid Bearer token obtained from customer.login.',
+                'error' => 'Unauthenticated or Invalid Token. Please provide a valid token obtained from customer.login.',
             ];
         }
+
+        $user = Auth::guard('sanctum')->user();
 
         return [
             'authenticated' => true,

@@ -2,9 +2,10 @@
 
 namespace HeyGeeks\BagistoMCP\Tools;
 
+use Mcp\Capability\Attribute\McpTool;
 use Webkul\Product\Repositories\ProductRepository;
 
-class ProductDetailTool extends BaseTool
+class ProductDetailTool
 {
     protected $productRepository;
 
@@ -13,42 +14,24 @@ class ProductDetailTool extends BaseTool
         $this->productRepository = $productRepository;
     }
 
-    public function name(): string
-    {
-        return 'products.detail';
-    }
-
-    public function description(): string
-    {
-        return 'Get detailed information about a specific product by ID or SKU. Use this tool when the user wants to know more about a particular product, including full description, attributes, images, and availability.';
-    }
-
-    public function inputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'id' => [
-                    'type' => 'integer',
-                    'description' => 'Product ID',
-                ],
-                'sku' => [
-                    'type' => 'string',
-                    'description' => 'Product SKU (alternative to ID)',
-                ],
-            ],
-            'required' => [],
-        ];
-    }
-
-    public function execute(array $arguments): array
+    /**
+     * Get detailed information about a specific product by ID or SKU.
+     * 
+     * Use this tool when the user wants to know more about a particular product, including full description, attributes, images, and availability.
+     * 
+     * @param int|null $id Product ID
+     * @param string|null $sku Product SKU (alternative to ID)
+     * @return array Product details
+     */
+    #[McpTool(name: 'products_detail')]
+    public function detail(?int $id = null, ?string $sku = null): array
     {
         $product = null;
 
-        if (isset($arguments['id'])) {
-            $product = $this->productRepository->find($arguments['id']);
-        } elseif (isset($arguments['sku'])) {
-            $product = $this->productRepository->findOneByField('sku', $arguments['sku']);
+        if ($id) {
+            $product = $this->productRepository->find($id);
+        } elseif ($sku) {
+            $product = $this->productRepository->findOneByField('sku', $sku);
         } else {
             return [
                 'found' => false,
