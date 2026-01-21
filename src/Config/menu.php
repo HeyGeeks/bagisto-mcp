@@ -25,11 +25,4 @@ return [
         'sort' => 2,
         'icon' => '',
     ],
-    [
-        'key' => 'settings.mcp.settings',
-        'name' => 'mcp::app.admin.menu.settings',
-        'route' => 'admin.mcp.settings.index',
-        'sort' => 3,
-        'icon' => '',
-    ],
 ];

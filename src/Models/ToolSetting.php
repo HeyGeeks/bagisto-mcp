@@ -111,4 +111,9 @@ class ToolSetting extends Model
 
         return $setting?->config;
     }
+
+    public static function enabledCount(): int
+    {
+        return static::where('is_enabled', true)->count();
+    }
 }

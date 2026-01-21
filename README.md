@@ -3,447 +3,259 @@
   <img src="src/Resources/assets/images/logo.png" alt="Bagisto MCP" width="300" />
 </p>
 
+<!-- Enable/Disable Badge -->
+<p align="center">
+    <a href="https://github.com/heygeeks/bagisto-mcp/actions"><img src="https://img.shields.io/badge/status-active-success.svg" alt="Status"></a>
+    <a href="https://packagist.org/packages/heygeeks/bagisto-mcp"><img src="https://img.shields.io/packagist/v/heygeeks/bagisto-mcp" alt="Latest Stable Version"></a>
+    <a href="https://bgcp.heygeeks.in"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+</p>
+
 <h1 align="center">Bagisto MCP Server</h1>
 
 <p align="center">
   <strong>Model Context Protocol for Bagisto E-Commerce</strong>
 </p>
-A Laravel package that exposes Bagisto e-commerce capabilities to LLMs (Large Language Models) via the **Model Context Protocol (MCP)**. This enables AI agents to safely interact with your Bagisto store for product discovery, customer authentication, order tracking, and more.
+
+A Laravel package that exposes Bagisto e-commerce capabilities to LLMs (Large Language Models) like Claude via the **Model Context Protocol (MCP)**. This enables AI agents to safely interact with your Bagisto store to search products, manage carts, check orders, and more—all controlled via a dedicated Admin Panel.
 
 ---
 
 ## 📋 Table of Contents
 
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Available Tools](#available-tools)
-- [Usage Examples](#usage-examples)
-- [Testing](#testing)
-- [Security](#security)
-- [Contributing](#contributing)
+- [Features](#-features)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Admin Panel](#-admin-panel)
+- [Claude Desktop Integration](#-claude-desktop-integration)
+- [Available Tools](#-available-tools)
+- [Contributing](#-contributing)
 
 ---
 
-## Installation
+## 🚀 Features
+
+- **Native PHP MCP Server**: Runs directly within your Laravel application using `stdio`.
+- **Admin Panel Integration**: Enable/Disable tools and manage settings directly from the Bagisto Admin.
+- **Granular Control**: Toggle individual tools like `products.search` or `customer.profile`.
+- **Authentication**: Secure sensitive tools with token-based authentication (Sanctum).
+- **Dual Transport**: Supports both Local Stdio (for Claude Desktop) and HTTP Endpoint methods.
+
+---
+
+## 📦 Installation
 
 ### 1. Install via Composer
 
-The package is available on Packagist:
 ```bash
 composer require heygeeks/bagisto-mcp
 ```
 
-For local development (via path repository):
-```bash
-# Already configured in your composer.json as a path repository
-composer update heygeeks/bagisto-mcp
-```
+### 2. Publish Assets & Configuration
 
-### 2. Publish Configuration
+Publish the configuration file and database migrations:
 
 ```bash
 php artisan vendor:publish --provider="HeyGeeks\BagistoMCP\MCPServiceProvider"
 ```
 
-### 3. Clear Caches
+### 3. Run Migrations
+
+Create the necessary database tables for tool settings:
+
+```bash
+php artisan migrate
+```
+
+### 4. Clear Caches
+
+Ensure the new routes and config are loaded:
 
 ```bash
 php artisan route:clear
 php artisan config:clear
 ```
 
-### 4. Claude Desktop Integration
-
-This package includes a pure PHP MCP stdio server that connects Claude Desktop directly to your Bagisto store.
-
-#### Prerequisites
-
-Make sure composer dependencies are installed in the package:
-```bash
-cd packages/heygeeks/bagisto-mcp
-composer install
-```
-
-#### Configure Claude Desktop
-
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-
-```json
-{
-    "mcpServers": {
-        "bagisto": {
-            "command": "php",
-            "args": ["/path/to/your/bagisto/packages/heygeeks/bagisto-mcp/bin/bagisto-mcp"]
-        }
-    }
-}
-```
-
-> **Note**: Replace `/path/to/your/bagisto` with the absolute path to your Bagisto installation.
-
-#### Example for Local Development
-
-```json
-{
-    "mcpServers": {
-        "bagisto": {
-            "command": "php",
-            "args": ["/Users/yourname/Developer/my-bagisto-store/packages/heygeeks/bagisto-mcp/bin/bagisto-mcp"]
-        }
-    }
-}
-```
-
-After updating the config, restart Claude Desktop. The MCP tools will appear in Claude's tool list.
-
-#### Test the MCP Server
-
-```bash
-# Test if the server starts correctly
-php packages/heygeeks/bagisto-mcp/bin/bagisto-mcp
-
-# You should see:
-# Bagisto MCP PHP server starting...
-# Tools registered: 11
-```
-
 ---
 
-## Configuration
+## ⚙️ Configuration
 
-The configuration file is published to `config/mcp.php`:
+The main configuration file is located at `config/mcp.php`.
 
 ```php
 return [
-    'enabled' => true,           // Enable/disable the MCP server
-    'version' => '0.1.0-beta',   // Current version
-    'status' => 'under_development',
-    'endpoint' => 'mcp',         // Custom MCP endpoint URL
-    'auth' => 'sanctum',         // Authentication method
-    'rate_limit' => 60,          // Requests per minute
-    'default_scopes' => ['products:read', 'categories:read', 'store:read'],
-    'tools' => [
-        // All registered tools
+    'enabled' => true,           // Master switch for the MCP server
+    'endpoint' => 'mcp',         // HTTP Endpoint (e.g., yourstore.com/mcp)
+    'auth' => 'sanctum',         // Auth method for protected tools
+    'tools' => [                 // Registered Tool Classes
+        'products.list' => \HeyGeeks\BagistoMCP\Tools\ProductListTool::class,
+        // ...
     ],
 ];
 ```
 
-### Custom Endpoint URL
+---
 
-You can customize the MCP endpoint URL in two ways:
+## 🖥️ Admin Panel
 
-**Option 1: Via config file** (`config/mcp.php`)
-```php
-'endpoint' => 'api/ai/mcp',  // Accessible at /api/ai/mcp
-```
+Manage your MCP Server directly from the Bagisto Admin Panel.
 
-**Option 2: Via environment variable** (`.env`)
-```env
-MCP_ENDPOINT=api/mcp
-```
+1.  Log in to your **Bagisto Admin**.
+2.  Navigate to **MCP** in the sidebar.
+3.  **Dashboard**: View server status and tool statistics.
+4.  **Settings**: Configure global settings like Rate Limiting and Endpoint URL.
+5.  **Tools**: Toggle individual tools On/Off and configure their specific settings.
 
-Examples:
-- Default: `/mcp`
-- Custom: `/api/mcp`, `/ai/tools`, `/llm/mcp`
+> **Note**: If you disable a tool in the Admin Panel, it will immediately become unavailable to connected LLMs.
 
 ---
 
-## Available Tools
+## 🤖 Claude Desktop Integration
 
-The MCP server provides **11 tools** organized by category:
+To use Bagisto MCP with Claude Desktop, you need to configure it to run the PHP server script.
 
-### 🛍️ Product Tools
+### 1. Locate the Server Script
 
-| Tool | Description | Auth Required |
-|------|-------------|---------------|
-| `products.list` | List products with filtering (category, price, pagination) | ❌ |
-| `products.search` | Full-text search for products | ❌ |
-| `products.detail` | Get detailed product info by ID or SKU | ❌ |
+The server script is located at:
+`packages/heygeeks/bagisto-mcp/bin/server.php`
+(or inside `vendor/heygeeks/bagisto-mcp/bin/server.php` if installed via vendor)
 
-### 📂 Category Tools
+### 2. Edit Claude Config
 
-| Tool | Description | Auth Required |
-|------|-------------|---------------|
-| `categories.list` | List all product categories | ❌ |
+Edit your Claude Desktop configuration file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-### 👤 Customer Tools
+Add the following configuration:
 
-| Tool | Description | Auth Required |
-|------|-------------|---------------|
-| `customer.login` | Authenticate and get access token | ❌ |
-| `customer.profile` | Get customer profile information | ✅ |
-
-### 📦 Order Tools
-
-| Tool | Description | Auth Required |
-|------|-------------|---------------|
-| `orders.status` | Check order status by ID | ⚠️ Optional |
-| `orders.history` | List customer's order history | ✅ |
-
-### 🛒 Cart Tools
-
-| Tool | Description | Auth Required |
-|------|-------------|---------------|
-| `cart.preview` | View current cart contents (read-only) | ❌ |
-
-### ❤️ Wishlist Tools
-
-| Tool | Description | Auth Required |
-|------|-------------|---------------|
-| `wishlist.view` | View customer's wishlist items | ✅ |
-
-### 🏪 Store Tools
-
-| Tool | Description | Auth Required |
-|------|-------------|---------------|
-| `store.info` | Get store info, currencies, contact | ❌ |
-
----
-
-## Usage Examples
-
-### Endpoint
-
-```
-POST /mcp
-Content-Type: application/json
-```
-
-### Discovery (List All Tools)
-
-Send an empty POST request to get all available tools with their schemas:
-
-```bash
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json"
-```
-
-**Response:**
 ```json
 {
-  "server": "Bagisto MCP",
-  "version": "0.1.0-beta",
-  "status": "under_development",
-  "tools": [
-    {
-      "name": "products.search",
-      "description": "Search for products...",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Search query string"
-          }
-        },
-        "required": ["query"]
-      }
+  "mcpServers": {
+    "bagisto": {
+      "command": "php",
+      "args": [
+        "/ABSOLUTE/PATH/TO/YOUR/PROJECT/packages/heygeeks/bagisto-mcp/bin/server.php"
+      ]
     }
-  ]
-}
-```
-
-### Search Products
-
-```bash
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tool": "products.search",
-    "arguments": {
-      "query": "running shoes"
-    }
-  }'
-```
-
-### Get Product Details
-
-```bash
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tool": "products.detail",
-    "arguments": {
-      "sku": "SHOE-001"
-    }
-  }'
-```
-
-### List Categories
-
-```bash
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tool": "categories.list",
-    "arguments": {}
-  }'
-```
-
-### Customer Login
-
-```bash
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tool": "customer.login",
-    "arguments": {
-      "email": "customer@example.com",
-      "password": "secret123"
-    }
-  }'
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "tool": "customer.login",
-  "result": {
-    "authenticated": true,
-    "customer_id": 5,
-    "token": "1|abc123xyz...",
-    "token_type": "Bearer"
   }
 }
 ```
 
-### Get Order History (Authenticated)
+**Important**: Replace `/ABSOLUTE/PATH/TO/YOUR/PROJECT` with the actual full path to your Laravel project root.
 
+### 3. Restart Claude
+
+Restart Claude Desktop. You should see the Bagisto tools (e.g., `products_search`, `store_info`) available in the tool picker.
+
+---
+
+## 🌐 Public Access (HTTP/SSE)
+
+If you need to expose the MCP server to users who cannot use SSH, you can use the **HTTP Endpoint**. This allows clients to connect via Server-Sent Events (SSE).
+
+### Endpoint URL
+
+The default endpoint is:
+`https://your-store.com/mcp`
+
+(You can change the `/mcp` prefix in `config/mcp.php`)
+
+### Client Connection
+
+To connect standard MCP clients (like Claude Desktop) to the HTTP endpoint, you need a local bridge script because Claude only supports local commands.
+
+We provide a Node.js bridge script in `packages/heygeeks/bagisto-mcp/client/`.
+
+#### 1. Setup the Client Bridge
 ```bash
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-  -d '{
-    "tool": "orders.history",
-    "arguments": {
-      "limit": 5
+cd packages/heygeeks/bagisto-mcp/client
+npm install
+```
+
+#### 2. Configure Claude Desktop
+Edit your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "bagisto-http": {
+      "command": "node",
+      "args": [
+        "/ABSOLUTE/PATH/TO/bagisto-mcp/client/remote-client.js",
+        "https://your-store.com/mcp"
+      ]
     }
-  }'
+  }
+}
 ```
 
-### Get Store Info
+(If you have an auth token, pass it as the second argument: `"args": [..., "https://url...", "YOUR_TOKEN"]`)
 
-```bash
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tool": "store.info",
-    "arguments": {}
-  }'
-```
+### Security Warning
+
+> [!WARNING]
+> Exposing the MCP server publicly allows anyone to query your product catalog.
+> - **Authentication**: By default, the endpoint is public but sensitive tools require tokens.
+> - **HTTPS**: Always use HTTPS for the remote URL.
 
 ---
 
-## Testing
+## 🔒 Remote Server Usage (SSH Tunneling)
 
-### Run Package Tests
+For **Admins and Developers**, the recommended secure method is to use **SSH Tunneling**.
 
-```bash
-php artisan test packages/heygeeks/bagisto-mcp/tests/Feature/MCPTest.php
+### Configuration (Claude Desktop)
+
+Update your local `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "bagisto-ssh": {
+      "command": "ssh",
+      "args": [
+        "user@your-server.com",
+        "php",
+        "/var/www/html/bagisto/packages/heygeeks/bagisto-mcp/bin/server.php"
+      ]
+    }
+  }
+}
 ```
 
-### Manual Testing with cURL
+### Important Notes for SSH
 
-```bash
-# Test if MCP server is running
-curl http://localhost:8000/mcp
-
-# Test tool discovery
-curl -X POST http://localhost:8000/mcp
-
-# Test a specific tool
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"tool": "store.info", "arguments": {}}'
-```
-
-### Verify Route Registration
-
-```bash
-php artisan route:list --path=mcp
-```
-
-Expected output:
-```
-GET|HEAD   mcp
-POST       mcp
-```
+1.  **User Permissions**: Run as a user with read access to the project.
+2.  **Encryption**: Traffic is fully encrypted via SSH.
 
 ---
 
-## Security
+## 🛠️ Available Tools
 
-### Best Practices
-
-1. **Rate Limiting**: The server enforces 60 requests/minute by default
-2. **Read-Only by Default**: Most tools are read-only
-3. **Token Authentication**: Sensitive operations require Sanctum tokens
-4. **No Direct DB Access**: LLMs cannot directly access the database
-5. **Input Validation**: All inputs are validated before processing
-
-### Token Scopes
-
-Tokens can be restricted to specific scopes:
-- `products:read` - Access product tools
-- `categories:read` - Access category tools
-- `customer:read` - Access customer profile
-- `orders:read` - Access order information
-- `store:read` - Access store information
-
-### Recommendations
-
-- Always use HTTPS in production
-- Implement additional rate limiting at the reverse proxy level
-- Monitor MCP usage logs
-- Regularly rotate tokens
+| Category | Tool Name | Description | Auth |
+|----------|-----------|-------------|------|
+| **Products** | `products.list` | List products with filtering | ❌ |
+| | `products.search` | Full-text search for products | ❌ |
+| | `products.detail` | Get product details by ID/SKU | ❌ |
+| **Categories** | `categories.list` | List all product categories | ❌ |
+| **Customer** | `customer.login` | Authenticate customer | ❌ |
+| | `customer.profile` | Get customer profile | ✅ |
+| **Orders** | `orders.status` | Check order status | ❌ |
+| | `orders.history` | View order history | ✅ |
+| **Cart** | `cart.preview` | View current cart | ❌ |
+| **Store** | `store.info` | Get store configuration | ❌ |
+| **Wishlist** | `wishlist.view` | View customer wishlist | ✅ |
 
 ---
 
-## LLM Integration
+## 🤝 Contributing
 
-### For AI Developers
+We welcome contributions!
 
-When integrating with your LLM system:
+1.  Fork the repository.
+2.  Create a feature branch.
+3.  Submit a Pull Request.
 
-1. **Fetch Tool Definitions**: Call `POST /mcp` without a tool to get all schemas
-2. **Register Tools**: Use the returned `inputSchema` for function calling
-3. **Execute Tools**: Send tool name and arguments to execute
-4. **Handle Auth**: Store tokens and pass them in `Authorization` header
+## 📄 License
 
-### Example System Prompt
+MIT License. See [LICENSE](LICENSE) for details.
 
-```
-You have access to a Bagisto e-commerce store via MCP tools.
-Available tools:
-- products.search: Find products by keyword
-- products.detail: Get full product information
-- categories.list: Browse product categories
-- cart.preview: View shopping cart
-- orders.status: Check order status
-
-When users ask about products, use the appropriate tool.
-```
-
----
-
-## Contributing
-
-This package is under active development. Contributions welcome!
-
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
-
----
-
-## License
-
-MIT License - See [LICENSE](LICENSE) file for details.
-
----
-
-## Support
-
-- **Issues**: [GitHub Issues](https://github.com/heygeeks/bagisto-mcp/issues)
-- **Email**: mohit@heygeeks.in

@@ -3,140 +3,97 @@
         @lang('mcp::app.admin.tools.title')
         </x-slot>
 
-        <!-- Header with Logo -->
-        <div class="flex items-center justify-between gap-4 max-sm:flex-wrap mb-6">
-            <div class="flex items-center gap-4">
-                <img src="{{ asset('vendor/mcp/images/logo.png') }}" alt="Bagisto MCP" class="h-10 w-auto" />
-                <div>
-                    <p class="text-xl font-bold text-gray-800 dark:text-white">
-                        @lang('mcp::app.admin.tools.title')
-                    </p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Enable or disable individual MCP tools
-                    </p>
-                </div>
-            </div>
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-xl font-bold text-gray-800 dark:text-white">
+                @lang('mcp::app.admin.tools.title')
+            </h1>
         </div>
 
-        <!-- Flash Messages -->
-        @if (session('success'))
-            <div
-                class="mb-4 flex items-center gap-3 rounded-lg bg-green-50 border border-green-200 p-4 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200">
-                <span class="icon-done text-xl"></span>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
+        <div class="bg-white dark:bg-gray-900 rounded-lg box-shadow">
+            <div class="table-responsive grid w-full box-shadow rounded bg-white dark:bg-gray-909 overflow-hidden">
+                <x-admin::table>
+                    <x-admin::table.thead>
+                        <x-admin::table.thead.tr>
+                            <x-admin::table.th>Name</x-admin::table.th>
+                            <x-admin::table.th>Code</x-admin::table.th>
+                            <x-admin::table.th>Auth</x-admin::table.th>
+                            <x-admin::table.th>Status</x-admin::table.th>
+                            <x-admin::table.th class="text-right">Actions</x-admin::table.th>
+                        </x-admin::table.thead.tr>
+                    </x-admin::table.thead>
 
-        @if (session('error'))
-            <div
-                class="mb-4 flex items-center gap-3 rounded-lg bg-red-50 border border-red-200 p-4 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
-                <span class="icon-cancel text-xl"></span>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
-
-        <!-- Tools Table -->
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                        <tr>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                @lang('mcp::app.admin.tools.name')
-                            </th>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                @lang('mcp::app.admin.tools.description')
-                            </th>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">
-                                @lang('mcp::app.admin.tools.auth-required')
-                            </th>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">
-                                @lang('mcp::app.admin.tools.status')
-                            </th>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">
-                                @lang('mcp::app.admin.tools.actions')
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <x-admin::table.tbody>
                         @forelse($tools as $tool)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                <td class="px-6 py-4">
-                                    <code
-                                        class="rounded-md bg-gray-100 px-2.5 py-1 text-sm font-mono text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                                            {{ $tool['name'] }}
-                                        </code>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 max-w-xs">
-                                        {{ Str::limit($tool['description'], 60) }}
+                            <x-admin::table.tbody.tr>
+                                <!-- Name & Description -->
+                                <x-admin::table.td>
+                                    <p class="text-gray-800 dark:text-white font-semibold">
+                                        {{ ucwords(str_replace('.', ' ', $tool['name'])) }}
                                     </p>
-                                </td>
-                                <td class="px-6 py-4 text-center">
+                                    <p class="text-xs text-gray-500">
+                                        {{ Str::limit($tool['description'] ?? 'No description', 60) }}
+                                    </p>
+                                </x-admin::table.td>
+
+                                <!-- Code -->
+                                <x-admin::table.td>
+                                    <code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs">
+                                        {{ $tool['name'] }}
+                                    </code>
+                                </x-admin::table.td>
+
+                                <!-- Auth Status -->
+                                <x-admin::table.td>
                                     @if($tool['requires_auth'])
-                                        <span
-                                            class="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
-                                            @lang('mcp::app.admin.tools.yes')
-                                        </span>
+                                        <span class="label-pending">Protected</span>
                                     @else
-                                        <span
-                                            class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
-                                            @lang('mcp::app.admin.tools.no')
-                                        </span>
+                                        <span class="label-active">Public</span>
                                     @endif
-                                </td>
-                                <td class="px-6 py-4 text-center">
+                                </x-admin::table.td>
+
+                                <!-- Enabled Status -->
+                                <x-admin::table.td>
                                     @if($tool['is_enabled'])
-                                        <span
-                                            class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800 dark:bg-green-900/50 dark:text-green-200">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-                                            @lang('mcp::app.admin.tools.enabled')
-                                        </span>
+                                        <span class="badge badge-lg badge-success">Enabled</span>
                                     @else
-                                        <span
-                                            class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-800 dark:bg-red-900/50 dark:text-red-200">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
-                                            @lang('mcp::app.admin.tools.disabled')
-                                        </span>
+                                        <span class="badge badge-lg badge-danger">Disabled</span>
                                     @endif
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <form action="{{ route('admin.mcp.tools.toggle', ['tool' => $tool['name']]) }}"
-                                        method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all {{ $tool['is_enabled'] ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 dark:bg-red-900/30 dark:text-red-200 dark:border-red-800 dark:hover:bg-red-900/50' : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 dark:bg-green-900/30 dark:text-green-200 dark:border-green-800 dark:hover:bg-green-900/50' }}">
-                                            @if($tool['is_enabled'])
-                                                <span class="icon-cancel text-sm"></span>
-                                            @else
-                                                <span class="icon-done text-sm"></span>
-                                            @endif
-                                            {{ $tool['is_enabled'] ? __('mcp::app.admin.tools.disable') : __('mcp::app.admin.tools.enable') }}
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-12 text-center">
-                                    <div class="flex flex-col items-center gap-3">
-                                        <span class="icon-product text-4xl text-gray-300 dark:text-gray-600"></span>
-                                        <p class="text-gray-500 dark:text-gray-400">
-                                            @lang('mcp::app.admin.tools.no-tools')
-                                        </p>
+                                </x-admin::table.td>
+
+                                <!-- Actions -->
+                                <x-admin::table.td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <form action="{{ route('admin.mcp.tools.toggle', ['tool' => $tool['name']]) }}"
+                                            method="POST">
+                                            @csrf
+                                            <button type="submit"
+                                                class="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-md transition-all"
+                                                title="Toggle Status">
+                                                @if($tool['is_enabled'])
+                                                    <span class="icon-cancel text-2xl"></span>
+                                                @else
+                                                    <span class="icon-done text-2xl"></span>
+                                                @endif
+                                            </button>
+                                        </form>
+
+                                        <a href="{{ route('admin.mcp.tools.edit', $tool['name']) }}"
+                                            class="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-md transition-all"
+                                            title="Edit Configuration">
+                                            <span class="icon-edit text-2xl"></span>
+                                        </a>
                                     </div>
-                                </td>
-                            </tr>
+                                </x-admin::table.td>
+                            </x-admin::table.tbody.tr>
+                        @empty
+                            <x-admin::table.tbody.tr>
+                                <x-admin::table.td colspan="5" class="text-center py-8 text-gray-500">
+                                    No tools found.
+                                </x-admin::table.td>
+                            </x-admin::table.tbody.tr>
                         @endforelse
-                    </tbody>
-                </table>
+                    </x-admin::table.tbody>
+                </x-admin::table>
             </div>
         </div>
 </x-admin::layouts>

@@ -3,6 +3,7 @@
 namespace HeyGeeks\BagistoMCP\Http\Controllers\Admin;
 
 use Illuminate\Routing\Controller;
+use HeyGeeks\BagistoMCP\Models\ToolSetting;
 use HeyGeeks\BagistoMCP\Tools\ToolInterface;
 
 class MCPDashboardController extends Controller
@@ -18,19 +19,7 @@ class MCPDashboardController extends Controller
         $enabledCount = 0;
         $toolsData = [];
 
-        foreach ($tools as $name => $class) {
-            if (class_exists($class)) {
-                $tool = app($class);
-                if ($tool instanceof ToolInterface) {
-                    $definition = $tool->toDefinition();
-                    $toolsData[] = [
-                        'name' => $name,
-                        'description' => $definition['description'] ?? '',
-                    ];
-                    $enabledCount++;
-                }
-            }
-        }
+        $enabledCount = ToolSetting::enabledCount();
 
         return view('mcp::admin.mcp.index', [
             'serverEnabled' => config('mcp.enabled', true),

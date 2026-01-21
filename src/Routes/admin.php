@@ -19,14 +19,8 @@ Route::group([
      */
     Route::prefix('tools')->group(function () {
         Route::get('/', [MCPToolsController::class, 'index'])->name('admin.mcp.tools.index');
+        Route::get('/{tool}/edit', [MCPToolsController::class, 'edit'])->name('admin.mcp.tools.edit');
+        Route::put('/{tool}', [MCPToolsController::class, 'update'])->name('admin.mcp.tools.update');
         Route::post('/{tool}/toggle', [MCPToolsController::class, 'toggle'])->name('admin.mcp.tools.toggle');
-    });
-
-    /**
-     * MCP Settings
-     */
-    Route::prefix('settings')->group(function () {
-        Route::get('/', [MCPSettingsController::class, 'index'])->name('admin.mcp.settings.index');
-        Route::post('/', [MCPSettingsController::class, 'store'])->name('admin.mcp.settings.store');
     });
 });

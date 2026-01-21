@@ -49,6 +49,11 @@ return [
             'tool-not-found' => 'Tool not found.',
             'enabled-success' => 'Tool ":tool" has been enabled.',
             'disabled-success' => 'Tool ":tool" has been disabled.',
+            'options' => 'Options',
+            'edit-title' => 'Edit :tool Settings',
+            'configuration' => 'Configuration',
+            'config-json' => 'Configuration (JSON)',
+            'config-help' => 'Enter valid JSON configuration for this tool.',
         ],
 
         'settings' => [

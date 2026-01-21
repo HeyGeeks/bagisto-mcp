@@ -18,11 +18,5 @@ return [
         'name' => 'mcp::app.admin.acl.tools',
         'route' => 'admin.mcp.tools.index',
         'sort' => 2,
-    ],
-    [
-        'key' => 'settings.mcp.settings',
-        'name' => 'mcp::app.admin.acl.settings',
-        'route' => 'admin.mcp.settings.index',
-        'sort' => 3,
-    ],
+    ]
 ];

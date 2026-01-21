@@ -51,7 +51,7 @@ return [
     | Maximum number of requests per minute per IP/token.
     |
     */
-    'rate_limit' => 60,
+    'rate_limit' => 65,
 
     /*
     |--------------------------------------------------------------------------
